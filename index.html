@@ -2,7 +2,7 @@
 <html lang="th">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>ระบบรายงานค่าฝุ่น จ.เชียงใหม่ (CCDC)</title>
     
     <!-- Tailwind CSS -->
@@ -15,104 +15,129 @@
     <link href="https://fonts.googleapis.com/css2?family=Prompt:wght@300;400;500;600;700;800;900&family=Sarabun:wght@400;600;700;800&display=swap" rel="stylesheet">
     
     <style>
-        body { font-family: 'Sarabun', sans-serif; background-color: #f8fafc; }
+        body { 
+            font-family: 'Sarabun', sans-serif; 
+            background-color: #f8fafc; /* พื้นหลังสีเทาอ่อน สบายตา */
+            -webkit-tap-highlight-color: transparent; 
+        }
         
+        /* Spinner สำหรับโหลดข้อมูล */
         .loading-spinner {
             border: 3px solid transparent; border-radius: 50%; border-top: 3px solid #0074e4;
             width: 18px; height: 18px; animation: spin 1s linear infinite;
+            display: inline-block; vertical-align: middle;
         }
+
         @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
 
         /* บังคับฟอนต์ Prompt */
         .export-prompt-font, .export-prompt-font * {
             font-family: 'Prompt', sans-serif !important;
         }
+
+        /* ซ่อน Scrollbar */
+        .no-scrollbar::-webkit-scrollbar { display: none; }
+        .no-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
     </style>
 </head>
-<body class="p-3 md:p-8 min-h-screen pb-20">
+<body class="antialiased min-h-screen pb-12">
 
     <!-- ส่วนบังคับโหลดฟอนต์ Prompt ล่วงหน้า -->
     <div style="font-family: 'Prompt', sans-serif; font-weight: 600; position: absolute; left: -9999px; top: -9999px; visibility: hidden;">Force Load Prompt 600</div>
 
-    <div class="max-w-5xl mx-auto space-y-5 md:space-y-6">
+    <!-- Mobile Container -->
+    <div class="w-full max-w-md mx-auto bg-[#f8fafc] min-h-screen flex flex-col relative overflow-x-hidden pb-8">
 
-        <!-- Header -->
-        <div class="bg-white border-l-[16px] border-[#0074e4] p-5 md:p-6 rounded-[24px] md:rounded-3xl shadow-sm flex flex-col md:flex-row justify-between items-start md:items-center gap-4 transition-colors">
-            <div class="md:flex-1">
-                <h1 class="text-xl md:text-3xl font-[900] text-slate-900 leading-snug tracking-tighter uppercase">ระบบรายงานค่าฝุ่น<br class="hidden md:block"/> <span class="text-[#0074e4]">"จ.เชียงใหม่"</span></h1>
-                <p class="text-[10px] md:text-xs font-bold text-slate-500 mt-1.5 md:mt-1 uppercase tracking-widest">อ้างอิงจากจุดตรวจวัด CCDC ในพื้นที่</p>
+        <!-- 1. Slim App Header (ส่วนหัวใหม่ กระทัดรัด ไม่กินพื้นที่) -->
+        <div class="sticky top-0 z-50 bg-white px-4 py-3 flex justify-between items-center shadow-sm border-b border-slate-100">
+            <div>
+                <h1 class="text-[16px] font-black text-slate-800 leading-none tracking-tight">รายงานค่าฝุ่น <span class="text-[#0074e4]">จ.เชียงใหม่</span></h1>
+                <div id="statusMessage" class="text-[10px] font-bold text-slate-400 mt-1 min-h-[16px]">รอการอัปเดต...</div>
             </div>
-            
-            <div class="flex flex-col items-start md:items-end gap-3 md:gap-2">
-                <button onclick="fetchDataCCDC()" id="btnHeaderUpdate" class="bg-slate-800 hover:bg-slate-900 text-white font-bold py-2 md:py-2.5 px-5 md:px-6 rounded-xl shadow transition flex items-center gap-2 text-xs md:text-sm active:scale-95">
-                    <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="3" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" /></svg>
-                    <span>อัปเดตข้อมูลล่าสุด</span>
+            <button onclick="fetchDataCCDC()" id="btnHeaderUpdate" class="w-9 h-9 bg-slate-50 border border-slate-200 hover:bg-slate-100 active:scale-95 rounded-full flex justify-center items-center text-slate-600 transition-colors shadow-sm">
+                <span class="loading-spinner hidden" style="border-top-color: #0074e4; border-width: 2px; width: 14px; height: 14px;"></span>
+                <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" /></svg>
+            </button>
+        </div>
+
+        <!-- Update Time -->
+        <div id="timeDisplay" class="hidden px-4 mt-3 flex justify-between items-center">
+            <span class="text-[11px] font-black text-slate-400 uppercase tracking-widest">อัปเดตล่าสุด:</span>
+            <span id="timeValue" class="text-[11px] font-bold text-[#0074e4] bg-blue-50 px-2.5 py-1 rounded-md"></span>
+        </div>
+
+        <div class="px-4 mt-3 space-y-4">
+
+            <!-- 2. Action Buttons (ปุ่มทำงานอยู่บนสุด) -->
+            <div class="flex flex-col gap-2.5">
+                <button onclick="saveImageWithTemplate(this)" class="w-full bg-[#0074e4] hover:bg-blue-600 text-white py-3.5 px-4 rounded-xl text-[14px] font-bold shadow-md transition-all active:scale-[0.98] flex items-center justify-center gap-2">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" x2="12" y1="15" y2="3"/></svg>
+                    <span>บันทึกรูป (ใส่กรอบ Template)</span>
                 </button>
-                <div id="timeDisplay" class="hidden text-left md:text-right bg-slate-50 px-4 py-2 rounded-lg border border-slate-100">
-                    <p class="text-[9px] md:text-[10px] font-black text-slate-400 uppercase tracking-widest">Update Time</p>
-                    <p id="timeValue" class="text-xs md:text-sm font-bold text-slate-700"></p>
+
+                <button onclick="saveCCDCRankingImage()" class="w-full bg-white hover:bg-slate-50 text-slate-700 border border-slate-200 py-3 px-4 rounded-xl text-[13px] font-bold shadow-sm transition-all active:scale-[0.98] flex items-center justify-center gap-2">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="18" height="18" rx="2" ry="2"/><line x1="3" y1="9" x2="21" y2="9"/><line x1="9" y1="21" x2="9" y2="9"/></svg>
+                    <span>บันทึกแบบตารางปกติ</span>
+                </button>
+            </div>
+
+            <!-- 3. Legacy Report Text (ข้อความโพสต์) -->
+            <div id="legacyCopySection" class="hidden bg-white rounded-[20px] shadow-sm border border-slate-100 p-4">
+                <div class="flex justify-between items-center mb-3">
+                    <h3 class="text-[13px] font-black text-slate-800 flex items-center gap-1.5 pl-1">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" class="text-[#0074e4]"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path><polyline points="14 2 14 8 20 8"></polyline><line x1="16" y1="13" x2="8" y2="13"></line><line x1="16" y1="17" x2="8" y2="17"></line><polyline points="10 9 9 9 8 9"></polyline></svg>
+                        ข้อความสำหรับโพสต์
+                    </h3>
+                    <button onclick="copyLegacyReportText()" class="bg-blue-50 text-blue-600 hover:bg-blue-100 px-3 py-1.5 rounded-lg text-[11px] font-bold transition-colors active:scale-95 flex items-center gap-1">
+                        <span id="copyLegacyStatus">คัดลอกข้อความ</span>
+                    </button>
                 </div>
-                <div id="statusMessage" class="text-xs font-bold text-slate-400 min-h-[16px]"></div>
+                <div id="legacyReportText" class="bg-slate-50/80 rounded-xl p-3 border border-slate-100 text-[11px] font-medium text-slate-600 leading-relaxed whitespace-pre-wrap h-[120px] overflow-y-auto no-scrollbar shadow-inner"></div>
             </div>
-        </div>
 
-        <div class="bg-white border border-slate-200 p-5 md:p-6 rounded-[24px] shadow-sm">
-            <h3 class="font-black text-slate-800 text-sm mb-3">1. ตั้งค่ากรอบรูปภาพ (Template)</h3>
-            <div class="flex flex-col sm:flex-row items-start sm:items-center gap-4 bg-slate-50 p-4 rounded-2xl border border-slate-100">
-                <input type="file" id="bgImageInput" accept="image/*" class="text-xs text-slate-600 file:mr-4 file:py-2 file:px-4 file:rounded-xl file:border-0 file:text-xs file:font-bold file:bg-[#0074e4] file:text-white hover:file:bg-blue-700 cursor-pointer w-full sm:w-auto">
-                <p class="text-[10px] text-slate-500 font-medium">** ระบบจะพยายามดึงรูปจากลิงก์อัตโนมัติ หรืออัปโหลดรูปเพื่อเปลี่ยนได้</p>
+            <!-- 4. Preview Grid Section (พรีวิวตาราง) -->
+            <div id="mainContentSection" class="hidden">
+                <div class="bg-white rounded-[20px] shadow-sm border border-slate-100 p-4 pt-3">
+                    <h3 class="text-[11px] font-black text-slate-400 uppercase tracking-widest flex items-center gap-1.5 mb-3">
+                        พรีวิวตาราง 25 อำเภอ
+                    </h3>
+                    
+                    <div id="ccdc-ranking-export-container" class="export-prompt-font w-full" style="background-color: transparent;">
+                        <div id="ccdc-grid-container" style="display: grid; gap: 12px; width: 100%;">
+                            <!-- Rendered JS content -->
+                        </div>
+                    </div>
+                </div>
             </div>
-            <img id="template-preview-img" style="display: none;" />
-        </div>
 
-        <div id="mainContentSection" class="hidden flex flex-col mt-6">
-            
-            <div class="w-full flex flex-col xl:flex-row xl:justify-between xl:items-end gap-4 xl:gap-0 mb-4 px-2">
-                <h2 class="text-xl md:text-2xl font-black text-slate-800">จัดอันดับ 25 อำเภอฝุ่นสูงสุด</h2>
+            <!-- 5. Settings Section (ตั้งค่าเพิ่มเติม) -->
+            <div class="bg-white p-4 rounded-[20px] shadow-sm border border-slate-100 mb-6">
+                <h3 class="text-[12px] font-black text-slate-800 mb-3">ตั้งค่าเพิ่มเติม</h3>
                 
-                <div class="flex flex-col sm:flex-row items-center gap-3 xl:gap-2">
-                    <div class="flex items-center gap-2 bg-white border border-slate-200 px-3 py-1.5 rounded-xl shadow-sm">
-                        <label class="text-xs font-bold text-slate-600">แถวละ (หน้าเว็บ):</label>
-                        <select id="ccdcGridCols" onchange="renderCCDCRankingGrid()" class="bg-slate-50 border border-slate-200 rounded-lg text-xs px-2 py-1 font-bold cursor-pointer outline-none">
-                            <option value="4">4</option>
-                            <option value="5" selected>5</option>
-                            <option value="6">6</option>
+                <div class="space-y-4">
+                    <!-- 1. ตั้งค่ากรอบรูปภาพ -->
+                    <div>
+                        <label class="block text-[11px] font-bold text-slate-500 mb-1.5">เปลี่ยนภาพพื้นหลัง (Template)</label>
+                        <input type="file" id="bgImageInput" accept="image/*" class="w-full text-[11px] text-slate-600 bg-slate-50 border border-slate-100 rounded-lg p-1.5 cursor-pointer file:mr-2 file:py-1 file:px-2 file:rounded file:border-0 file:text-[10px] file:font-bold file:bg-[#0074e4] file:text-white outline-none">
+                        <img id="template-preview-img" style="display: none;" class="mt-2 max-w-[100px] rounded-lg border border-slate-200 shadow-sm" />
+                    </div>
+
+                    <!-- 2. ตั้งค่าจำนวนคอลัมน์ -->
+                    <div>
+                        <label class="block text-[11px] font-bold text-slate-500 mb-1.5">การแสดงผลพรีวิว (คอลัมน์)</label>
+                        <select id="ccdcGridCols" onchange="renderCCDCRankingGrid()" class="w-full bg-slate-50 border border-slate-100 rounded-lg text-[12px] px-2 py-2 font-bold text-slate-700 outline-none">
+                            <option value="4">4 คอลัมน์</option>
+                            <option value="5" selected>5 คอลัมน์ (แนะนำ)</option>
+                            <option value="6">6 คอลัมน์</option>
                         </select>
                     </div>
-                    
-                    <button onclick="saveCCDCRankingImage()" class="bg-white hover:bg-slate-50 text-slate-700 border border-slate-200 px-4 py-2 rounded-xl text-xs font-bold shadow-sm transition-colors flex items-center gap-2 active:scale-95">
-                        <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" x2="12" y1="15" y2="3"/></svg>
-                        <span>บันทึกแบบตารางปกติ</span>
-                    </button>
-
-                    <button onclick="saveImageWithTemplate(this)" class="bg-[#0074e4] hover:bg-blue-700 text-white px-4 py-2 rounded-xl text-xs font-bold shadow-md transition-colors flex items-center gap-2 active:scale-95">
-                        <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" x2="12" y1="15" y2="3"/></svg>
-                        <span>บันทึกรูป (ใส่กรอบ Template)</span>
-                    </button>
-                </div>
-            </div>
-            
-            <div class="bg-white rounded-[24px] md:rounded-[32px] shadow-sm border border-slate-200 relative pt-4 pb-6 px-4">
-                <div id="ccdc-ranking-export-container" class="export-prompt-font w-full" style="background-color: transparent;">
-                    <div id="ccdc-grid-container" style="display: grid; gap: 12px; width: 100%;">
-                        </div>
                 </div>
             </div>
             
         </div>
-
-        <div id="legacyCopySection" class="hidden bg-white rounded-[24px] md:rounded-[32px] shadow-sm border border-slate-200 p-5 md:p-6 mt-6">
-            <div class="flex justify-between items-center mb-4">
-                <h3 class="font-black text-slate-800 text-sm">คัดลอกรายงาน PM2.5 (ทุกอำเภอ)</h3>
-                <button onclick="copyLegacyReportText()" class="flex items-center gap-2 bg-slate-100 hover:bg-slate-200 text-slate-700 border border-slate-300 px-4 py-2 rounded-xl text-xs font-bold transition-colors active:scale-95">
-                    <span id="copyLegacyStatus">คัดลอกข้อความ</span>
-                </button>
-            </div>
-            <div id="legacyReportText" class="bg-slate-50 rounded-xl p-4 border border-slate-100 text-xs font-bold text-slate-600 leading-relaxed whitespace-pre-wrap"></div>
-        </div>
-        
     </div>
 
+    <!-- โค้ด JavaScript ต้นฉบับจาก 'รายงานค่าฝุ่น auto.html' ที่คุณอัปโหลดมาล่าสุด (100% Original) -->
     <script>
         const allDistricts = ["เมืองเชียงใหม่", "จอมทอง", "แม่แจ่ม", "เชียงดาว", "ดอยสะเก็ด", "แม่แตง", "แม่ริม", "สะเมิง", "ฝาง", "แม่อาย", "พร้าว", "สันป่าตอง", "สันกำแพง", "สันทราย", "หางดง", "ฮอด", "ดอยเต่า", "อมก๋อย", "สารภี", "เวียงแหง", "ไชยปราการ", "แม่วาง", "แม่ออน", "ดอยหล่อ", "กัลยาณิวัฒนา"];
         
@@ -443,11 +468,10 @@
                 const dateCanvas = await html2canvas(dateDiv, { backgroundColor: null, scale: 2, logging: false });
                 document.body.removeChild(dateDiv);
 
-                // 4. ประกอบร่าง (คมชัด Scale 2)
+                // 4. ประกอบร่าง (ปรับขนาดให้เท่ากับรูปกรอบต้นฉบับ 1080x1350 พอดีเป๊ะ)
                 const finalCanvas = document.createElement('canvas');
-                const scaleFactor = 2; 
-                finalCanvas.width = 1080 * scaleFactor;
-                finalCanvas.height = 1350 * scaleFactor;
+                finalCanvas.width = 1080;
+                finalCanvas.height = 1350;
                 const ctx = finalCanvas.getContext('2d');
                 ctx.imageSmoothingEnabled = true;
                 ctx.imageSmoothingQuality = 'high';
@@ -455,17 +479,20 @@
                 ctx.drawImage(bgImg, 0, 0, finalCanvas.width, finalCanvas.height);
 
                 // ตารางปกติ
-                const startY = 225 * scaleFactor;       
-                const targetHeight = 840 * scaleFactor; 
+                const startY = 225;       
+                const targetHeight = 840; 
                 const drawWidth = (gridImg.width / gridImg.height) * targetHeight; 
                 const drawHeight = targetHeight;
                 const startX = (finalCanvas.width - drawWidth) / 2;
                 ctx.drawImage(gridImg, startX, startY, drawWidth, drawHeight);
 
                 // ข้อความวันที่ (ปรับตำแหน่งลงมาที่ 137px ตามที่กำหนด)
-                const targetYPosition = 135;
-                const dateTargetY = (targetYPosition * scaleFactor) - (dateCanvas.height / 2);
-                ctx.drawImage(dateCanvas, 0, dateTargetY, dateCanvas.width, dateCanvas.height);
+                const targetYPosition = 137;
+                // เนื่องจากตอนสร้างรูปตัวหนังสือ เราใช้ scale: 2 (คมชัด 2 เท่า) ตอนนำมาแปะจึงต้องหาร 2 เพื่อให้ขนาดพอดีกรอบ
+                const dateDrawWidth = 1080;
+                const dateDrawHeight = dateCanvas.height / 2;
+                const dateTargetY = targetYPosition - (dateDrawHeight / 2);
+                ctx.drawImage(dateCanvas, 0, dateTargetY, dateDrawWidth, dateDrawHeight);
 
                 const link = document.createElement("a");
                 link.href = finalCanvas.toDataURL("image/jpeg", 1.0); 
