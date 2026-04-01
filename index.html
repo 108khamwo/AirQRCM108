@@ -335,19 +335,32 @@
                                 if (dName === "เมืองเชียงใหม่" || dName === "กัลยาณิวัฒนา") nameRatio = 0.12;
                                 else if (dName.length > 7) nameRatio = 0.145;
 
-                                if (txtRank) { txtRank.style.fontSize = (w * 0.11) + 'px'; txtRank.style.marginBottom = (w * 0.04) + 'px'; txtRank.style.transform = 'translateY(-' + (w * 0.04) + 'px)'; }
-                                
-                                // Fix: แก้ไขตำแหน่งชื่ออำเภอให้ตรงกันทุุกช่อง
-                                if (txtName) { 
-                                    txtName.style.fontSize = (w * nameRatio) + 'px'; 
-                                    txtName.style.height = (w * 0.22) + 'px'; 
-                                    txtName.style.lineHeight = (w * 0.22) + 'px'; // กำหนด Line Height ให้เท่ากับ Height เพื่อบังคับให้อยู่กึ่งกลางบรรทัดทุุกช่อง
-                                    txtName.style.display = 'block'; // เปลี่ยนจาก flex เป็น block เพื่อความเสถียรของพิกัด
-                                    txtName.style.textAlign = 'center';
-                                    txtName.style.transform = 'translateY(-' + (w * 0.11) + 'px)'; // ปรับพิกัดใหม่เพื่อให้ขนานกันทุุกช่อง
+                                // --- Fix: บังคับตำแหน่ง Rank และ Name ให้เป๊ะบน iOS โดยใช้ Absolute Positioning ---
+                                if (txtRank) { 
+                                    txtRank.style.position = 'absolute';
+                                    txtRank.style.top = (w * 0.05) + 'px';
+                                    txtRank.style.left = '0';
+                                    txtRank.style.width = '100%';
+                                    txtRank.style.textAlign = 'center';
+                                    txtRank.style.fontSize = (w * 0.11) + 'px'; 
+                                    txtRank.style.margin = '0';
+                                    txtRank.style.transform = 'none'; 
                                 }
                                 
-                                // ปรับค่าขยับตัวเลขขึ้น ( 0.20 -> 0.24 )
+                                if (txtName) { 
+                                    txtName.style.position = 'absolute';
+                                    txtName.style.top = (w * 0.19) + 'px'; // บังคับจุดเริ่มบรรทัดชื่ออำเภอให้คงที่ทุุกช่อง
+                                    txtName.style.left = '0';
+                                    txtName.style.width = '100%';
+                                    txtName.style.textAlign = 'center';
+                                    txtName.style.fontSize = (w * nameRatio) + 'px'; 
+                                    txtName.style.lineHeight = '1'; 
+                                    txtName.style.margin = '0';
+                                    txtName.style.transform = 'none'; 
+                                    txtName.style.display = 'block';
+                                }
+                                // --------------------------------------------------------------------------
+                                
                                 if (txtPm25) { 
                                     if (txtPm25.innerText === 'ไม่มีข้อมูล') { txtPm25.style.fontSize = (w * 0.14) + 'px'; txtPm25.style.transform = 'translateY(-' + (w * 0.12) + 'px)'; } 
                                     else { 
@@ -356,7 +369,6 @@
                                         txtPm25.style.transform = 'translateY(-' + (w * 0.24) + 'px)'; 
                                     }
                                 }
-                                // หน่วยค่าฝุ่น ( 0.14 )
                                 if (txtUnit) { 
                                     txtUnit.style.fontSize = (w * 0.10) + 'px'; 
                                     txtUnit.style.transform = 'translateY(-' + (w * 0.14) + 'px)'; 
@@ -447,7 +459,6 @@
                 const startX = (finalCanvas.width - drawWidth) / 2;
                 ctx.drawImage(gridImg, startX, startY, drawWidth, drawHeight);
 
-                // --- Fix: ปรับตำแหน่ง Y ของวันที่ให้กึ่งกลางแคปซูล ( 144 ) ---
                 const targetYPosition = 144 * scale; 
                 
                 await document.fonts.load('600 54px "Prompt"'); 
