@@ -138,7 +138,7 @@
         </div>
     </div>
 
-    <!-- โค้ด JavaScript ระบบหลัก (อิงจากต้นฉบับ ปรับปรุงเฉพาะส่วนการบันทึกภาพให้เป๊ะขึ้น) -->
+    <!-- โค้ด JavaScript ระบบหลัก -->
     <script>
         const allDistricts = ["เมืองเชียงใหม่", "จอมทอง", "แม่แจ่ม", "เชียงดาว", "ดอยสะเก็ด", "แม่แตง", "แม่ริม", "สะเมิง", "ฝาง", "แม่อาย", "พร้าว", "สันป่าตอง", "สันกำแพง", "สันทราย", "หางดง", "ฮอด", "ดอยเต่า", "อมก๋อย", "สารภี", "เวียงแหง", "ไชยปราการ", "แม่วาง", "แม่ออน", "ดอยหล่อ", "กัลยาณิวัฒนา"];
         
@@ -313,13 +313,10 @@
             container.innerHTML = html;
         }
 
-        // ฟังก์ชัน Capture Grid (รักษาต้นฉบับ 100%)
         function captureGridToCanvas(scaleMultiplier = 2) {
             return new Promise((resolve, reject) => {
                 const element = document.getElementById('ccdc-ranking-export-container');
                 if (!element) return reject("ไม่พบตาราง Grid");
-                
-                // เก็บค่าเดิม
                 const originalWidth = element.style.width;
                 element.style.width = '1200px'; 
                 
@@ -372,7 +369,7 @@
             } catch (err) { alert("เกิดข้อผิดพลาด: " + err); }
         }
 
-        // ปรับปรุงฟังก์ชันบันทึกรูปพร้อมกรอบ (เพื่อแก้ปัญหา iOS เพี้ยน)
+        // แก้ไขฟังก์ชันบันทึกรูป: เน้นเรื่องฟอนต์วันที่และตำแหน่งบรรทัด
         async function saveImageWithTemplate(btnElement) {
             if(!currentData) { alert("กรุณารอโหลดข้อมูลให้เสร็จก่อน"); return; }
             
@@ -384,13 +381,11 @@
             const defaultTemplateUrl = "https://img2.pic.in.th/-c54d2bbd8578abf4.jpg";
 
             try {
-                // 1. แคปตาราง Grid (รักษาต้นฉบับ 100%)
                 const rawGridCanvas = await captureGridToCanvas(2); 
                 const gridImg = new Image();
                 gridImg.src = rawGridCanvas.toDataURL("image/png");
                 await new Promise(resolve => { gridImg.onload = resolve; });
 
-                // 2. โหลดรูปกรอบ
                 let bgImgSrc = "";
                 const uploadedImg = document.getElementById('template-preview-img');
                 if (uploadedImg && uploadedImg.src && uploadedImg.src.startsWith("data:")) {
@@ -419,11 +414,10 @@
                 bgImg.crossOrigin = "anonymous";
                 await new Promise((resolve, reject) => {
                     bgImg.onload = resolve;
-                    bgImg.onerror = () => reject(new Error("โหลดกรอบรูปไม่ได้ กรุณาอัปโหลดรูปเองในหัวข้อที่ 1"));
+                    bgImg.onerror = () => reject(new Error("โหลดกรอบรูปไม่ได้"));
                     bgImg.src = bgImgSrc;
                 });
 
-                // 3. ประกอบร่าง (คมชัด Scale 2)
                 const finalCanvas = document.createElement('canvas');
                 const scale = 2; 
                 finalCanvas.width = 1080 * scale;
@@ -432,10 +426,8 @@
                 ctx.imageSmoothingEnabled = true;
                 ctx.imageSmoothingQuality = 'high';
 
-                // วาดพื้นหลัง
                 ctx.drawImage(bgImg, 0, 0, finalCanvas.width, finalCanvas.height);
 
-                // วาดตาราง (ใช้พิกัดเดิมตามต้นฉบับ)
                 const startY = 225 * scale;       
                 const targetHeight = 840 * scale; 
                 const drawWidth = (gridImg.width / gridImg.height) * targetHeight; 
@@ -443,25 +435,27 @@
                 const startX = (finalCanvas.width - drawWidth) / 2;
                 ctx.drawImage(gridImg, startX, startY, drawWidth, drawHeight);
 
-                // 4. เขียนวันที่ (วิธีใหม่: เขียนลง Canvas โดยตรงเพื่อแก้ปัญหา iOS Safari เพี้ยน)
-                // มั่นใจได้ว่าวันที่จำอยู่กึ่งกลางแคปซูลสีฟ้าเสมอ ทุกเครื่อง
-                const targetYPosition = 137 * scale; // ตำแหน่งเดิม 137px
+                // --- แก้ไขเรื่องฟอนต์วันที่และตำแหน่งบรรทัดตรงนี้ ---
+                // ปรับพิกัด Y จาก 137 เป็น 138 และลดขนาดตัวหนังสือลงเล็กน้อยเพื่อความเป๊ะบน Mobile
+                const targetYPosition = 138 * scale; 
                 
-                await document.fonts.load('600 54px "Prompt"'); // 27px * scale 2 = 54px
-                ctx.font = '600 54px "Prompt", sans-serif';
+                // บังคับโหลดฟอนต์ Prompt 600 และใช้ชื่อฟอนต์ที่ถูกต้องในระบบ Canvas
+                await document.fonts.load('600 54px Prompt'); 
+                
+                ctx.font = '600 54px Prompt'; 
                 ctx.fillStyle = '#ffffff';
                 ctx.textAlign = 'center';
                 ctx.textBaseline = 'middle';
                 
-                // ใส่เงาให้วันที่เหมือนในต้นฉบับ
                 ctx.shadowColor = 'rgba(0,0,0,0.4)';
                 ctx.shadowBlur = 8;
                 ctx.shadowOffsetX = 2;
                 ctx.shadowOffsetY = 2;
 
+                // วาดวันที่ลงไปตรงกึ่งกลางแคปซูล
                 ctx.fillText(shortUpdateTimeStr, finalCanvas.width / 2, targetYPosition);
+                // ------------------------------------------------
 
-                // 5. ดาวน์โหลด
                 const link = document.createElement("a");
                 link.href = finalCanvas.toDataURL("image/jpeg", 0.95); 
                 let fileDate = shortUpdateTimeStr.replace(/[\s\.]/g, '_').replace(/:/g, '');
