@@ -541,7 +541,10 @@
                 btn.disabled = true;
             }
 
-            const defaultTemplateUrl = "https://img2.pic.in.th/-c54d2bbd8578abf4.jpg";
+            // ==============================================================
+            // ใช้รูปภาพปกใหม่ตามที่ส่งมาล่าสุด
+            // ==============================================================
+            const defaultTemplateUrl = "https://img2.pic.in.th/--_Resized.jpg";
 
             try {
                 const rawGridCanvas = await captureGridToCanvas(2); 
@@ -637,7 +640,7 @@
                 const startX = (finalCanvas.width - drawWidth) / 2;
                 ctx.drawImage(gridImg, startX, startY, drawWidth, drawHeight);
 
-                // ข้อความวันที่ (ค่าเดิมของ Desktop คือ 137, ของมือถือรอบก่อนคือ 138 ขยับขึ้น 4px จึงเป็น 134)
+                // ข้อความวันที่ (ค่าเดิมของ Desktop คือ 137, ของมือถือตั้งเป็น 133)
                 const targetYPosition = isMobileDevice ? 133 : 137;
                 // เนื่องจากตอนสร้างรูปตัวหนังสือ เราใช้ scale: 2 (คมชัด 2 เท่า) ตอนนำมาแปะจึงต้องหาร 2 เพื่อให้ขนาดพอดีกรอบ
                 const dateDrawWidth = 1080;
