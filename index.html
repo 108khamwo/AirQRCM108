@@ -53,41 +53,22 @@
         .order-mobile-3 { order: 3; }
         .order-mobile-4 { order: 4; }
 
-        /* Normal Desktop View (When screen > 768px and NOT forced mobile) */
+        /* Normal Desktop View (When screen > 768px) */
         @media (min-width: 768px) {
-            body:not(.force-mobile) { background-color: #f8fafc; }
-            body:not(.force-mobile) .desktop-only { display: flex !important; }
-            body:not(.force-mobile) .mobile-only { display: none !important; }
-            body:not(.force-mobile) .mobile-only-block { display: none !important; }
-            body:not(.force-mobile) .app-container { max-width: 64rem; background-color: transparent; padding-bottom: 5rem; padding-top: 2rem; }
+            body { background-color: #f8fafc; }
+            body .desktop-only { display: flex !important; }
+            body .mobile-only { display: none !important; }
+            body .mobile-only-block { display: none !important; }
+            body .app-container { max-width: 64rem; background-color: transparent; padding-bottom: 5rem; padding-top: 2rem; }
             
-            body:not(.force-mobile) .order-desktop-1 { order: 1; }
-            body:not(.force-mobile) .order-desktop-2 { order: 2; }
-            body:not(.force-mobile) .order-desktop-3 { order: 3; }
-            body:not(.force-mobile) .order-desktop-4 { order: 4; }
+            body .order-desktop-1 { order: 1; }
+            body .order-desktop-2 { order: 2; }
+            body .order-desktop-3 { order: 3; }
+            body .order-desktop-4 { order: 4; }
             
-            body:not(.force-mobile) .custom-p { padding: 1.5rem; }
-            body:not(.force-mobile) .custom-rounded { border-radius: 1.5rem; }
+            body .custom-p { padding: 1.5rem; }
+            body .custom-rounded { border-radius: 1.5rem; }
         }
-
-        /* Forced Mobile View (Toggled by Button) */
-        body.force-mobile { background-color: #e2e8f0; } /* Darker bg to highlight the phone frame */
-        body.force-mobile .app-container { 
-            max-width: 28rem !important; 
-            margin: 0 auto; 
-            background-color: #f1f5f9; 
-            box-shadow: 0 0 40px rgba(0,0,0,0.15); 
-            min-height: 100vh;
-        }
-        body.force-mobile .desktop-only { display: none !important; }
-        body.force-mobile .mobile-only { display: flex !important; }
-        body.force-mobile .mobile-only-block { display: block !important; }
-        body.force-mobile .order-mobile-1 { order: 1 !important; }
-        body.force-mobile .order-mobile-2 { order: 2 !important; }
-        body.force-mobile .order-mobile-3 { order: 3 !important; }
-        body.force-mobile .order-mobile-4 { order: 4 !important; }
-        body.force-mobile .custom-p { padding: 1rem !important; }
-        body.force-mobile .custom-rounded { border-radius: 1.5rem !important; }
     </style>
 </head>
 <body class="antialiased">
@@ -95,7 +76,7 @@
     <!-- ส่วนบังคับโหลดฟอนต์ Prompt ล่วงหน้าเพื่อการบันทึกภาพ -->
     <div style="font-family: 'Prompt', sans-serif; font-weight: 600; position: absolute; left: -9999px; top: -9999px; visibility: hidden;">Force Load Prompt 600</div>
 
-    <!-- Main App Container (ทำงานควบคู่กับ Custom CSS) -->
+    <!-- Main App Container -->
     <div id="appContainer" class="app-container flex flex-col gap-4 md:gap-6 px-0 md:px-0">
 
         <!-- ============================== -->
@@ -230,12 +211,6 @@
 
     </div>
 
-    <!-- Toggle Desktop / Mobile Mode Button (ปุ่มจำลองมือถือ) -->
-    <button id="toggleModeBtn" onclick="toggleViewMode()" class="fixed bottom-6 right-6 z-[9999] bg-slate-800 text-white px-4 py-3 rounded-full shadow-2xl text-xs font-bold border border-slate-700 opacity-90 hover:opacity-100 transition-all active:scale-95 flex items-center gap-2">
-        <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="5" y="2" width="14" height="20" rx="2" ry="2"></rect><line x1="12" y1="18" x2="12.01" y2="18"></line></svg>
-        <span id="toggleModeText">จำลองมุมมองมือถือ</span>
-    </button>
-
     <!-- โค้ด JavaScript ระบบหลัก (กู้คืนการทำงาน Desktop ต้นฉบับ 100%) -->
     <script>
         const allDistricts = ["เมืองเชียงใหม่", "จอมทอง", "แม่แจ่ม", "เชียงดาว", "ดอยสะเก็ด", "แม่แตง", "แม่ริม", "สะเมิง", "ฝาง", "แม่อาย", "พร้าว", "สันป่าตอง", "สันกำแพง", "สันทราย", "หางดง", "ฮอด", "ดอยเต่า", "อมก๋อย", "สารภี", "เวียงแหง", "ไชยปราการ", "แม่วาง", "แม่ออน", "ดอยหล่อ", "กัลยาณิวัฒนา"];
@@ -244,22 +219,6 @@
         let currentData = null;
         let updateTimeStr = '';      
         let shortUpdateTimeStr = ''; 
-
-        // ระบบสลับหน้าจอ Desktop / Mobile (ใช้ Custom CSS Classes ควบคุม)
-        let isForcedMobile = false;
-        function toggleViewMode() {
-            isForcedMobile = !isForcedMobile;
-            const toggleBtn = document.getElementById('toggleModeBtn');
-            const toggleText = document.getElementById('toggleModeText');
-            
-            if (isForcedMobile) {
-                document.body.classList.add('force-mobile');
-                toggleBtn.innerHTML = '<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="3" width="20" height="14" rx="2" ry="2"></rect><line x1="8" y1="21" x2="16" y2="21"></line><line x1="12" y1="17" x2="12" y2="21"></line></svg><span id="toggleModeText">กลับสู่มุมมอง Desktop</span>';
-            } else {
-                document.body.classList.remove('force-mobile');
-                toggleBtn.innerHTML = '<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="5" y="2" width="14" height="20" rx="2" ry="2"></rect><line x1="12" y1="18" x2="12.01" y2="18"></line></svg><span id="toggleModeText">จำลองมุมมองมือถือ</span>';
-            }
-        }
 
         function syncCols(val) {
             document.getElementById('ccdcGridColsDesktop').value = val;
@@ -465,7 +424,7 @@
                 const originalWidth = element.style.width;
                 element.style.width = '1200px'; 
 
-                const isMobileDevice = window.innerWidth < 768 || document.body.classList.contains('force-mobile');
+                const isMobileDevice = window.innerWidth < 768;
                 
                 html2canvas(element, { 
                     scale: scaleMultiplier, 
@@ -558,10 +517,12 @@
                 if (uploadedImg && uploadedImg.src && uploadedImg.src.startsWith("data:")) {
                     bgImgSrc = uploadedImg.src;
                 } else {
+                    // ปรับลำดับ Proxy เพื่อแก้ปัญหาภาพไม่ชัดเวลาดึงอัตโนมัติ 
+                    // ให้ใช้ proxy แบบดึงข้อมูลดิบ (Raw/CORS) เป็นลำดับแรกเพื่อป้องกันการโดนบีบอัดรูป
                     const proxies = [
-                        `https://wsrv.nl/?url=${encodeURIComponent(defaultTemplateUrl)}&output=jpg`,
+                        `https://corsproxy.io/?${encodeURIComponent(defaultTemplateUrl)}`,
                         `https://api.allorigins.win/raw?url=${encodeURIComponent(defaultTemplateUrl)}`,
-                        `https://corsproxy.io/?${encodeURIComponent(defaultTemplateUrl)}`
+                        `https://wsrv.nl/?url=${encodeURIComponent(defaultTemplateUrl)}&output=jpg&q=100`
                     ];
                     let fetchSuccess = false;
                     for (let proxy of proxies) {
@@ -591,7 +552,7 @@
                     bgImg.src = bgImgSrc;
                 });
 
-                const isMobileDevice = window.innerWidth < 768 || document.body.classList.contains('force-mobile');
+                const isMobileDevice = window.innerWidth < 768;
                 const dateFontSize = isMobileDevice ? '26px' : '27px';
 
                 // ==============================================================
