@@ -504,7 +504,7 @@
                                         txtPm25.style.fontSize = (w * 0.42) + 'px'; 
                                         txtPm25.style.marginBottom = '0px'; 
                                         let pm25Translate = w * 0.16;
-                                        if (isMobileDevice) pm25Translate += 4;
+                                        if (isMobileDevice) pm25Translate += 8;
                                         txtPm25.style.transform = 'translateY(-' + pm25Translate + 'px)'; 
                                     }
                                 }
@@ -637,8 +637,8 @@
                 const startX = (finalCanvas.width - drawWidth) / 2;
                 ctx.drawImage(gridImg, startX, startY, drawWidth, drawHeight);
 
-                // ข้อความวันที่ (ปรับตำแหน่งลงมาที่ 137px ตามที่กำหนด หรือ 136px สำหรับมือถือ)
-                const targetYPosition = isMobileDevice ? 136 : 137;
+                // ข้อความวันที่ (ปรับตำแหน่งลงมาที่ 137px ตามที่กำหนด หรือ 138px สำหรับมือถือ)
+                const targetYPosition = isMobileDevice ? 138 : 137;
                 // เนื่องจากตอนสร้างรูปตัวหนังสือ เราใช้ scale: 2 (คมชัด 2 เท่า) ตอนนำมาแปะจึงต้องหาร 2 เพื่อให้ขนาดพอดีกรอบ
                 const dateDrawWidth = 1080;
                 const dateDrawHeight = dateCanvas.height / 2;
