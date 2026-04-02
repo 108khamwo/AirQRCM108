@@ -17,14 +17,14 @@
     <style>
         body { 
             font-family: 'Sarabun', sans-serif; 
-            background-color: #f1f5f9; 
+            background-color: #f8fafc; 
             -webkit-tap-highlight-color: transparent; 
         }
         
         .loading-spinner {
-            border: 2px solid transparent; border-radius: 50%; border-top: 2px solid #0074e4;
+            border: 3px solid transparent; border-radius: 50%; border-top: 3px solid #0074e4;
             width: 16px; height: 16px; animation: spin 1s linear infinite;
-            display: inline-block;
+            display: inline-block; vertical-align: middle;
         }
 
         @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
@@ -35,110 +35,241 @@
 
         .no-scrollbar::-webkit-scrollbar { display: none; }
         .no-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
+
+        /* ============================================================== */
+        /* Custom CSS สำหรับระบบจำลองมือถือ (Mobile/Desktop Toggle System) */
+        /* ============================================================== */
+        
+        /* Default: Mobile First Styling */
+        .desktop-only { display: none !important; }
+        .mobile-only { display: flex !important; }
+        .mobile-only-block { display: block !important; }
+        .app-container { max-width: 28rem; margin: 0 auto; width: 100%; padding-bottom: 2rem; background-color: #f1f5f9; min-height: 100vh;}
+        .custom-p { padding: 1rem; }
+        .custom-rounded { border-radius: 1.5rem; }
+        
+        .order-mobile-1 { order: 1; }
+        .order-mobile-2 { order: 2; }
+        .order-mobile-3 { order: 3; }
+        .order-mobile-4 { order: 4; }
+
+        /* Normal Desktop View (When screen > 768px and NOT forced mobile) */
+        @media (min-width: 768px) {
+            body:not(.force-mobile) { background-color: #f8fafc; }
+            body:not(.force-mobile) .desktop-only { display: flex !important; }
+            body:not(.force-mobile) .mobile-only { display: none !important; }
+            body:not(.force-mobile) .mobile-only-block { display: none !important; }
+            body:not(.force-mobile) .app-container { max-width: 64rem; background-color: transparent; padding-bottom: 5rem; padding-top: 2rem; }
+            
+            body:not(.force-mobile) .order-desktop-1 { order: 1; }
+            body:not(.force-mobile) .order-desktop-2 { order: 2; }
+            body:not(.force-mobile) .order-desktop-3 { order: 3; }
+            body:not(.force-mobile) .order-desktop-4 { order: 4; }
+            
+            body:not(.force-mobile) .custom-p { padding: 1.5rem; }
+            body:not(.force-mobile) .custom-rounded { border-radius: 1.5rem; }
+        }
+
+        /* Forced Mobile View (Toggled by Button) */
+        body.force-mobile { background-color: #e2e8f0; } /* Darker bg to highlight the phone frame */
+        body.force-mobile .app-container { 
+            max-width: 28rem !important; 
+            margin: 0 auto; 
+            background-color: #f1f5f9; 
+            box-shadow: 0 0 40px rgba(0,0,0,0.15); 
+            min-height: 100vh;
+        }
+        body.force-mobile .desktop-only { display: none !important; }
+        body.force-mobile .mobile-only { display: flex !important; }
+        body.force-mobile .mobile-only-block { display: block !important; }
+        body.force-mobile .order-mobile-1 { order: 1 !important; }
+        body.force-mobile .order-mobile-2 { order: 2 !important; }
+        body.force-mobile .order-mobile-3 { order: 3 !important; }
+        body.force-mobile .order-mobile-4 { order: 4 !important; }
+        body.force-mobile .custom-p { padding: 1rem !important; }
+        body.force-mobile .custom-rounded { border-radius: 1.5rem !important; }
     </style>
 </head>
-<body class="antialiased min-h-screen flex justify-center pb-12">
+<body class="antialiased">
 
-    <!-- ส่วนบังคับโหลดฟอนต์ Prompt ล่วงหน้า -->
+    <!-- ส่วนบังคับโหลดฟอนต์ Prompt ล่วงหน้าเพื่อการบันทึกภาพ -->
     <div style="font-family: 'Prompt', sans-serif; font-weight: 600; position: absolute; left: -9999px; top: -9999px; visibility: hidden;">Force Load Prompt 600</div>
 
-    <div class="w-full max-w-md mx-auto bg-[#f1f5f9] min-h-screen flex flex-col relative overflow-x-hidden pb-8">
+    <!-- Main App Container (ทำงานควบคู่กับ Custom CSS) -->
+    <div id="appContainer" class="app-container flex flex-col gap-4 md:gap-6 px-0 md:px-0">
 
-        <!-- Professional Slim Header -->
-        <div class="sticky top-0 z-50 bg-white/95 backdrop-blur-md px-5 py-3 flex justify-between items-center shadow-sm border-b border-slate-200">
+        <!-- ============================== -->
+        <!-- 1. HEADER SECTION              -->
+        <!-- ============================== -->
+        
+        <!-- Mobile Header (แสดงเฉพาะบนมือถือ) -->
+        <div class="mobile-only sticky top-0 z-50 bg-white/95 backdrop-blur-md px-5 py-3 justify-between items-center shadow-sm border-b border-slate-200">
             <div>
-                <div class="flex items-center gap-2">
-                    <span class="w-2 h-2 rounded-full bg-[#0074e4] animate-pulse"></span>
-                    <h1 class="text-[14px] font-black text-slate-800 leading-none uppercase tracking-tight">รายงานค่าฝุ่น <span class="text-[#0074e4]">จ.เชียงใหม่</span></h1>
-                </div>
-                <div id="statusMessage" class="text-[10px] font-bold text-slate-400 mt-1 min-h-[14px]">พร้อมใช้งาน</div>
+                <h1 class="text-[15px] font-black text-slate-800 leading-none uppercase tracking-tight">รายงานค่าฝุ่น <span class="text-[#0074e4]">จ.เชียงใหม่</span></h1>
+                <div class="statusMessage text-[10px] font-bold text-slate-400 mt-1 min-h-[14px]">รอการอัปเดต...</div>
             </div>
-            
-            <button onclick="fetchDataCCDC()" id="btnHeaderUpdate" class="w-9 h-9 bg-slate-100 hover:bg-slate-200 text-slate-600 rounded-full flex items-center justify-center transition-all active:scale-90 border border-slate-200">
-                <span class="loading-spinner hidden"></span>
-                <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" /></svg>
+            <button onclick="fetchDataCCDC()" class="btnHeaderUpdate w-9 h-9 bg-slate-100 hover:bg-slate-200 text-slate-600 rounded-full flex items-center justify-center transition-all active:scale-90 border border-slate-200">
+                <span class="loading-spinner hidden" style="border-top-color: #0074e4; border-width: 2px; width: 14px; height: 14px;"></span>
+                <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 update-icon" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" /></svg>
             </button>
         </div>
 
-        <div class="px-4 mt-4 space-y-4">
+        <!-- Mobile: Update Time -->
+        <div class="timeDisplay hidden mobile-only px-4 mt-1 justify-between items-center">
+            <span class="text-[11px] font-black text-slate-400 uppercase tracking-widest">อัปเดตล่าสุด:</span>
+            <span class="timeValue text-[11px] font-bold text-[#0074e4] bg-blue-50 px-2.5 py-1 rounded-md"></span>
+        </div>
+
+        <!-- Desktop Header (ต้นฉบับ - แสดงเฉพาะจอคอม) -->
+        <div class="desktop-only bg-white border-l-[16px] border-[#0074e4] p-6 rounded-3xl shadow-sm justify-between items-center gap-4 transition-colors">
+            <div class="flex-1">
+                <h1 class="text-3xl font-[900] text-slate-900 leading-snug tracking-tighter uppercase">ระบบรายงานค่าฝุ่น<br/> <span class="text-[#0074e4]">"จ.เชียงใหม่"</span></h1>
+                <p class="text-xs font-bold text-slate-500 mt-1 uppercase tracking-widest">อ้างอิงจากจุดตรวจวัด CCDC ในพื้นที่</p>
+            </div>
             
-            <div class="grid grid-cols-1 gap-2.5">
-                <button onclick="saveImageWithTemplate(this)" class="w-full bg-[#0074e4] hover:bg-blue-600 text-white py-3.5 px-4 rounded-xl text-[14px] font-extrabold shadow-md transition-all active:scale-[0.98] flex items-center justify-center gap-2">
-                    <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" x2="12" y1="15" y2="3"/></svg>
-                    <span>บันทึกรูป (ใส่กรอบ Template)</span>
+            <div class="flex flex-col items-end gap-2">
+                <button onclick="fetchDataCCDC()" class="btnHeaderUpdate bg-slate-800 hover:bg-slate-900 text-white font-bold py-2.5 px-6 rounded-xl shadow transition flex items-center gap-2 text-sm active:scale-95">
+                    <span class="loading-spinner hidden" style="border-top-color: white;"></span>
+                    <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 update-icon" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="3" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" /></svg>
+                    <span>อัปเดตข้อมูลล่าสุด</span>
                 </button>
-            </div>
-
-            <div id="legacyCopySection" class="hidden bg-white rounded-2xl shadow-sm border border-slate-200 p-4">
-                <div class="flex justify-between items-center mb-3">
-                    <h3 class="text-[13px] font-black text-slate-800 flex items-center gap-1.5">
-                        <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" class="text-[#0074e4]"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path><polyline points="14 2 14 8 20 8"></polyline></svg>
-                        ข้อความสำหรับโพสต์
-                    </h3>
-                    <div id="timeDisplay" class="hidden text-[10px] font-bold text-[#0074e4] bg-blue-50 px-2 py-0.5 rounded">
-                        <span id="timeValue"></span>
-                    </div>
+                <div class="timeDisplay hidden flex-col text-right bg-slate-50 px-4 py-2 rounded-lg border border-slate-100">
+                    <p class="text-[10px] font-black text-slate-400 uppercase tracking-widest">Update Time</p>
+                    <p class="timeValue text-sm font-bold text-slate-700"></p>
                 </div>
-                <div id="legacyReportText" class="bg-slate-50 rounded-xl p-3 border border-slate-100 text-[11px] font-medium text-slate-600 leading-relaxed whitespace-pre-wrap h-[120px] overflow-y-auto no-scrollbar shadow-inner"></div>
-                <button onclick="copyLegacyReportText()" class="w-full mt-3 bg-slate-100 hover:bg-slate-200 text-slate-700 py-2.5 rounded-lg text-[11px] font-black transition-colors active:scale-[0.98] flex items-center justify-center gap-2">
-                    <span id="copyLegacyStatus">คัดลอกข้อความเพื่อโพสต์</span>
-                </button>
+                <div class="statusMessage text-xs font-bold text-slate-400 min-h-[16px]">รอการอัปเดต...</div>
             </div>
+        </div>
 
-            <div id="mainContentSection" class="hidden">
-                <div class="bg-white rounded-2xl shadow-sm border border-slate-200 p-4">
-                    <div class="flex justify-between items-center mb-4">
-                        <h3 class="text-[11px] font-black text-slate-400 uppercase tracking-widest">พรีวิวตาราง 25 อำเภอ</h3>
-                        <button onclick="saveCCDCRankingImage()" class="text-[10px] font-bold text-[#0074e4] flex items-center gap-1 border-b border-[#0074e4]/30">
-                            <svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" x2="12" y1="15" y2="3"/></svg>
-                            บันทึกเฉพาะตาราง
-                        </button>
-                    </div>
-                    
-                    <div id="ccdc-ranking-export-container" class="export-prompt-font w-full" style="background-color: transparent;">
-                        <div id="ccdc-grid-container" style="display: grid; gap: 10px; width: 100%;">
-                            <!-- Rendered JS content -->
-                        </div>
-                    </div>
-                </div>
+        <!-- ============================== -->
+        <!-- 2. CONTENT BLOCKS              -->
+        <!-- ============================== -->
+        
+        <!-- Mobile Action Buttons (โชว์เฉพาะมือถือ อยู่บนสุด) -->
+        <div class="mobile-only flex-col gap-2.5 px-4 order-mobile-1">
+            <button onclick="saveImageWithTemplate(this)" class="w-full bg-[#0074e4] hover:bg-blue-600 text-white py-3.5 px-4 rounded-xl text-[14px] font-extrabold shadow-md transition-all active:scale-[0.98] flex items-center justify-center gap-2">
+                <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" x2="12" y1="15" y2="3"/></svg>
+                <span>บันทึกรูป (ใส่กรอบ Template)</span>
+            </button>
+            <button onclick="saveCCDCRankingImage()" class="w-full bg-white hover:bg-slate-50 text-slate-700 border border-slate-200 py-3 px-4 rounded-xl text-[13px] font-bold shadow-sm transition-all active:scale-[0.98] flex items-center justify-center gap-2">
+                <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="18" height="18" rx="2" ry="2"/><line x1="3" y1="9" x2="21" y2="9"/><line x1="9" y1="21" x2="9" y2="9"/></svg>
+                <span>บันทึกแบบตารางปกติ</span>
+            </button>
+        </div>
+
+        <!-- Settings Section -->
+        <div class="bg-white custom-rounded shadow-sm border border-slate-200 custom-p mx-4 md:mx-0 order-mobile-4 order-desktop-1">
+            <h3 class="text-[12px] md:text-sm font-black text-slate-800 mb-3">1. ตั้งค่ากรอบรูปภาพ (Template)</h3>
+            <div class="flex flex-col sm:flex-row items-start sm:items-center gap-4 bg-slate-50 p-3 md:p-4 rounded-xl md:rounded-2xl border border-slate-100">
+                <input type="file" id="bgImageInput" accept="image/*" class="w-full sm:w-auto text-[11px] md:text-xs text-slate-600 bg-transparent border-0 p-0 cursor-pointer file:mr-3 file:py-1.5 md:file:py-2 file:px-3 md:file:px-4 file:rounded-lg md:file:rounded-xl file:border-0 file:text-[10px] md:file:text-xs file:font-bold file:bg-[#0074e4] file:text-white outline-none hover:file:bg-blue-700">
+                <p class="hidden md:block text-[10px] text-slate-500 font-medium">** ระบบจะพยายามดึงรูปจากลิงก์อัตโนมัติ หรืออัปโหลดรูปเพื่อเปลี่ยนได้</p>
             </div>
+            <img id="template-preview-img" style="display: none;" class="mt-3 md:mt-4 max-w-[100px] rounded-lg shadow-sm border border-slate-200" />
+            
+            <!-- Select Cols (รวมเป็นอันเดียว ใช้ได้ทั้ง 2 ระบบ) -->
+            <div class="mobile-only-block mt-4 pt-4 border-t border-slate-100">
+                <label class="block text-[11px] font-bold text-slate-500 mb-1 uppercase tracking-wide">2. จำนวนคอลัมน์พรีวิว</label>
+                <select id="ccdcGridColsMobile" onchange="syncCols(this.value)" class="w-full bg-slate-50 border border-slate-100 rounded-lg text-[12px] px-2 py-2 font-bold text-slate-700 outline-none">
+                    <option value="4">4 คอลัมน์</option>
+                    <option value="5" selected>5 คอลัมน์ (แนะนำ)</option>
+                    <option value="6">6 คอลัมน์</option>
+                </select>
+            </div>
+        </div>
 
-            <div class="bg-white p-4 rounded-2xl shadow-sm border border-slate-200">
-                <div class="flex items-center gap-2 mb-4">
-                    <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 text-slate-400" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z" /></svg>
-                    <h3 class="text-[12px] font-black text-slate-800">ตั้งค่าพรีวิวและการบันทึกรูป</h3>
-                </div>
-                
-                <div class="space-y-4">
-                    <div>
-                        <label class="block text-[11px] font-bold text-slate-500 mb-1.5 uppercase tracking-wide">1. เปลี่ยนภาพพื้นหลัง (Template)</label>
-                        <input type="file" id="bgImageInput" accept="image/*" class="w-full text-[11px] text-slate-600 bg-slate-50 border border-slate-100 rounded-lg p-2 cursor-pointer file:mr-2 file:py-1 file:px-2 file:rounded file:border-0 file:text-[10px] file:font-black file:bg-slate-800 file:text-white outline-none">
-                        <img id="template-preview-img" style="display: none;" class="mt-2 max-w-[80px] rounded-lg border border-slate-200" />
-                    </div>
-
-                    <div>
-                        <label class="block text-[11px] font-bold text-slate-500 mb-1.5 uppercase tracking-wide">2. จำนวนคอลัมน์ (พรีวิวเท่านั้น)</label>
-                        <select id="ccdcGridCols" onchange="renderCCDCRankingGrid()" class="w-full bg-slate-50 border border-slate-200 rounded-lg text-[12px] px-3 py-2.5 font-bold text-slate-700 outline-none">
-                            <option value="4">4 คอลัมน์ต่อแถว</option>
-                            <option value="5" selected>5 คอลัมน์ต่อแถว</option>
-                            <option value="6">6 คอลัมน์ต่อแถว</option>
+        <!-- Preview Grid Section -->
+        <div id="mainContentSection" class="hidden flex-col mx-4 md:mx-0 order-mobile-3 order-desktop-2">
+            
+            <!-- Desktop Grid Title & Actions -->
+            <div class="desktop-only w-full flex-col xl:flex-row xl:justify-between xl:items-end gap-4 xl:gap-0 mb-4 px-2">
+                <h2 class="text-2xl font-black text-slate-800">จัดอันดับ 25 อำเภอฝุ่นสูงสุด</h2>
+                <div class="flex flex-col sm:flex-row items-center gap-2">
+                    <div class="flex items-center gap-2 bg-white border border-slate-200 px-3 py-1.5 rounded-xl shadow-sm">
+                        <label class="text-xs font-bold text-slate-600">แถวละ (หน้าเว็บ):</label>
+                        <select id="ccdcGridColsDesktop" onchange="syncCols(this.value)" class="bg-slate-50 border border-slate-200 rounded-lg text-xs px-2 py-1 font-bold cursor-pointer outline-none">
+                            <option value="4">4</option>
+                            <option value="5" selected>5</option>
+                            <option value="6">6</option>
                         </select>
                     </div>
+                    <button onclick="saveCCDCRankingImage()" class="bg-white hover:bg-slate-50 text-slate-700 border border-slate-200 px-4 py-2 rounded-xl text-xs font-bold shadow-sm transition-colors flex items-center gap-2 active:scale-95">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" x2="12" y1="15" y2="3"/></svg>
+                        <span>บันทึกแบบตารางปกติ</span>
+                    </button>
+                    <button onclick="saveImageWithTemplate(this)" class="bg-[#0074e4] hover:bg-blue-700 text-white px-4 py-2 rounded-xl text-xs font-bold shadow-md transition-colors flex items-center gap-2 active:scale-95">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" x2="12" y1="15" y2="3"/></svg>
+                        <span>บันทึกรูป (ใส่กรอบ Template)</span>
+                    </button>
                 </div>
             </div>
-            
+
+            <div class="bg-white custom-rounded shadow-sm border border-slate-200 relative custom-p">
+                <h3 class="mobile-only-block text-[11px] font-black text-slate-400 uppercase tracking-widest mb-3">พรีวิวตาราง 25 อำเภอ</h3>
+                <div id="ccdc-ranking-export-container" class="export-prompt-font w-full" style="background-color: transparent;">
+                    <div id="ccdc-grid-container" style="display: grid; gap: 12px; width: 100%;">
+                        <!-- Rendered JS content -->
+                    </div>
+                </div>
+            </div>
         </div>
+
+        <!-- Legacy Copy Section -->
+        <div id="legacyCopySection" class="hidden bg-white custom-rounded shadow-sm border border-slate-200 custom-p mx-4 md:mx-0 order-mobile-2 order-desktop-3">
+            <div class="flex justify-between items-center mb-3 md:mb-4">
+                <h3 class="text-[13px] md:text-sm font-black text-slate-800 flex items-center gap-1.5">
+                    <svg class="mobile-only-block" xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" class="text-[#0074e4]"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path><polyline points="14 2 14 8 20 8"></polyline></svg>
+                    <span class="desktop-only">คัดลอกรายงาน PM2.5 (ทุกอำเภอ)</span>
+                    <span class="mobile-only-block">ข้อความสำหรับโพสต์</span>
+                </h3>
+                <button onclick="copyLegacyReportText()" class="text-[11px] md:text-xs font-black text-[#0074e4] md:text-slate-700 px-3 py-1.5 md:px-4 md:py-2 bg-blue-50 md:bg-slate-100 hover:md:bg-slate-200 rounded-lg md:rounded-xl border-0 md:border md:border-slate-300 transition-colors active:scale-95">
+                    <span id="copyLegacyStatus">คัดลอกข้อความ</span>
+                </button>
+            </div>
+            <div id="legacyReportText" class="bg-slate-50 rounded-xl p-3 md:p-4 border border-slate-100 text-[11px] md:text-xs font-medium md:font-bold text-slate-600 leading-relaxed whitespace-pre-wrap h-[120px] md:h-auto overflow-y-auto no-scrollbar shadow-inner md:shadow-none"></div>
+        </div>
+
     </div>
 
-    <!-- โค้ด JavaScript ระบบหลัก -->
+    <!-- Toggle Desktop / Mobile Mode Button (ปุ่มจำลองมือถือ) -->
+    <button id="toggleModeBtn" onclick="toggleViewMode()" class="fixed bottom-6 right-6 z-[9999] bg-slate-800 text-white px-4 py-3 rounded-full shadow-2xl text-xs font-bold border border-slate-700 opacity-90 hover:opacity-100 transition-all active:scale-95 flex items-center gap-2">
+        <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="5" y="2" width="14" height="20" rx="2" ry="2"></rect><line x1="12" y1="18" x2="12.01" y2="18"></line></svg>
+        <span id="toggleModeText">จำลองมุมมองมือถือ</span>
+    </button>
+
+    <!-- โค้ด JavaScript ระบบหลัก (กู้คืนการทำงาน Desktop ต้นฉบับ 100%) -->
     <script>
         const allDistricts = ["เมืองเชียงใหม่", "จอมทอง", "แม่แจ่ม", "เชียงดาว", "ดอยสะเก็ด", "แม่แตง", "แม่ริม", "สะเมิง", "ฝาง", "แม่อาย", "พร้าว", "สันป่าตอง", "สันกำแพง", "สันทราย", "หางดง", "ฮอด", "ดอยเต่า", "อมก๋อย", "สารภี", "เวียงแหง", "ไชยปราการ", "แม่วาง", "แม่ออน", "ดอยหล่อ", "กัลยาณิวัฒนา"];
-        
         const DEFAULT_GAS_URL = "https://script.google.com/macros/s/AKfycbwzfx6uMAVR0b45YUtmQepYJEjmmLTP-siGf2ybxYRrVAP_qxUFvu-E3xj9f9o8fP0WMQ/exec";
 
         let currentData = null;
         let updateTimeStr = '';      
         let shortUpdateTimeStr = ''; 
+
+        // ระบบสลับหน้าจอ Desktop / Mobile (ใช้ Custom CSS Classes ควบคุม)
+        let isForcedMobile = false;
+        function toggleViewMode() {
+            isForcedMobile = !isForcedMobile;
+            const toggleBtn = document.getElementById('toggleModeBtn');
+            const toggleText = document.getElementById('toggleModeText');
+            
+            if (isForcedMobile) {
+                document.body.classList.add('force-mobile');
+                toggleBtn.innerHTML = '<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="3" width="20" height="14" rx="2" ry="2"></rect><line x1="8" y1="21" x2="16" y2="21"></line><line x1="12" y1="17" x2="12" y2="21"></line></svg><span id="toggleModeText">กลับสู่มุมมอง Desktop</span>';
+            } else {
+                document.body.classList.remove('force-mobile');
+                toggleBtn.innerHTML = '<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="5" y="2" width="14" height="20" rx="2" ry="2"></rect><line x1="12" y1="18" x2="12.01" y2="18"></line></svg><span id="toggleModeText">จำลองมุมมองมือถือ</span>';
+            }
+        }
+
+        function syncCols(val) {
+            document.getElementById('ccdcGridColsDesktop').value = val;
+            document.getElementById('ccdcGridColsMobile').value = val;
+            renderCCDCRankingGrid();
+        }
+
+        function updateUIElements(selector, action) {
+            document.querySelectorAll(selector).forEach(action);
+        }
 
         document.getElementById('bgImageInput').addEventListener('change', function(e) {
             const file = e.target.files[0];
@@ -147,42 +278,48 @@
                 reader.onload = function(event) {
                     const previewImg = document.getElementById('template-preview-img');
                     previewImg.src = event.target.result;
+                    previewImg.style.display = 'block';
                 }
                 reader.readAsDataURL(file);
             }
         });
 
-        window.onload = function() {
-            fetchDataCCDC();
-        };
+        window.onload = function() { fetchDataCCDC(); };
 
         async function fetchDataCCDC() {
-            const statusEl = document.getElementById('statusMessage');
-            const btn = document.getElementById('btnHeaderUpdate');
-            const spinner = btn.querySelector('.loading-spinner');
-            const icon = btn.querySelector('svg');
-
-            btn.disabled = true; 
-            spinner?.classList.remove('hidden');
-            icon?.classList.add('hidden');
-            statusEl.innerText = "กำลังอัปเดตข้อมูล...";
-            statusEl.className = "text-[10px] font-bold text-blue-500 animate-pulse";
+            updateUIElements('.btnHeaderUpdate', el => el.disabled = true);
+            updateUIElements('.loading-spinner', el => el.classList.remove('hidden'));
+            updateUIElements('.update-icon', el => el.classList.add('hidden'));
+            
+            updateUIElements('.statusMessage', el => {
+                el.innerText = "กำลังดึงข้อมูลอัปเดตล่าสุด...";
+                el.className = "statusMessage text-xs font-bold text-blue-500 animate-pulse mt-1 min-h-[14px]";
+            });
 
             try {
                 const response = await fetch(DEFAULT_GAS_URL, { method: 'GET', redirect: 'follow' });
+                if (!response.ok) throw new Error("HTTP error");
+                
                 const data = await response.json();
                 if (data.html) {
                     analyzeDustHTML(data.html);
-                    statusEl.innerText = "อัปเดตสำเร็จ";
-                    statusEl.className = "text-[10px] font-bold text-green-500";
+                    updateUIElements('.statusMessage', el => {
+                        el.innerText = "อัปเดตข้อมูลสำเร็จ";
+                        el.className = "statusMessage text-xs font-bold text-green-500 mt-1 min-h-[14px]";
+                    });
+                    setTimeout(() => updateUIElements('.statusMessage', el => el.innerText = ""), 3000);
+                } else {
+                    throw new Error("No HTML Data");
                 }
             } catch (err) {
-                statusEl.innerText = `ดึงข้อมูลไม่สำเร็จ`;
-                statusEl.className = "text-[10px] font-bold text-red-500";
+                updateUIElements('.statusMessage', el => {
+                    el.innerText = "ไม่สามารถดึงข้อมูลอัตโนมัติได้";
+                    el.className = "statusMessage text-xs font-bold text-red-500 mt-1 min-h-[14px]";
+                });
             } finally {
-                btn.disabled = false; 
-                spinner?.classList.add('hidden');
-                icon?.classList.remove('hidden');
+                updateUIElements('.btnHeaderUpdate', el => el.disabled = false);
+                updateUIElements('.loading-spinner', el => el.classList.add('hidden'));
+                updateUIElements('.update-icon', el => el.classList.remove('hidden'));
             }
         }
 
@@ -219,19 +356,23 @@
                     for (const [station, district] of Object.entries(knownStations)) {
                         if (fullName.includes(station)) {
                             aName = district;
+                            if (!fullName.includes("อ.") && !fullName.includes("อำเภอ")) fullName += ` อ.${district === "เมืองเชียงใหม่" ? "เมือง" : district}`;
                             break;
                         }
                     }
+
                     if (!aName) {
                         const amphoeMatch = fullName.match(/(?:อ\.|อำเภอ)\s*([ก-๙]+)/);
-                        if (amphoeMatch) aName = amphoeMatch[1].trim();
-                        else {
+                        if (amphoeMatch) {
+                            aName = amphoeMatch[1].trim();
+                        } else {
                             for (let d of allDistricts) {
                                 let checkName = d === "เมืองเชียงใหม่" ? "เมือง" : d;
                                 if (fullName.includes(checkName)) { aName = d; break; }
                             }
                         }
                     }
+
                     if (aName) {
                         if (aName === "เมือง") aName = "เมืองเชียงใหม่";
                         if (!districtMap[aName] || value > districtMap[aName].val) {
@@ -257,19 +398,28 @@
             });
 
             currentData = resultData;
-            document.getElementById('mainContentSection').classList.remove('hidden');
-            document.getElementById('legacyCopySection').classList.remove('hidden');
+            
+            updateUIElements('#mainContentSection', el => {
+                el.classList.remove('hidden');
+                el.classList.add('flex');
+            });
+            updateUIElements('#legacyCopySection', el => el.classList.remove('hidden'));
+            
             if(updateTimeStr) {
-                document.getElementById('timeValue').innerText = shortUpdateTimeStr;
-                document.getElementById('timeDisplay').classList.remove('hidden');
+                updateUIElements('.timeValue', el => el.innerText = updateTimeStr);
+                updateUIElements('.timeDisplay', el => {
+                    el.classList.remove('hidden');
+                    el.classList.add('flex'); 
+                });
             }
+
             renderCCDCRankingGrid();
             generateTextReport();
         }
 
         function renderCCDCRankingGrid() {
             if(!currentData) return;
-            const cols = parseInt(document.getElementById('ccdcGridCols').value);
+            const cols = parseInt(document.getElementById('ccdcGridColsDesktop').value);
             const container = document.getElementById('ccdc-grid-container');
             container.style.gridTemplateColumns = `repeat(${cols}, minmax(0, 1fr))`;
             
@@ -278,6 +428,7 @@
                 const isMissing = item.val === -1;
                 let colors = getAqiColorForBlock(item.val);
                 if (isMissing) colors = { bg: '#e5e7eb', text: '#6b7280', mapText: '#6b7280', border: '#d1d5db' };
+                
                 const isDarkText = colors.mapText === '#111827';
                 const textShadowStyle = isDarkText ? '1px 1px 1px rgba(255,255,255,0.9)' : '1px 1px 3px rgba(0,0,0,0.6)';
                 
@@ -305,16 +456,21 @@
             container.innerHTML = html;
         }
 
-        // --- ฟังก์ชันบันทึกตารางเป็นภาพ ---
+        // หัวใจสำคัญสำหรับ iOS: คง windowWidth: 1200 ไว้
         function captureGridToCanvas(scaleMultiplier = 2) {
             return new Promise((resolve, reject) => {
                 const element = document.getElementById('ccdc-ranking-export-container');
                 if (!element) return reject("ไม่พบตาราง Grid");
+                
                 const originalWidth = element.style.width;
                 element.style.width = '1200px'; 
                 
                 html2canvas(element, { 
-                    scale: scaleMultiplier, backgroundColor: null, useCORS: true, logging: false,
+                    scale: scaleMultiplier, 
+                    backgroundColor: null, 
+                    useCORS: true, 
+                    logging: false,
+                    windowWidth: 1200, 
                     onclone: (clonedDoc) => {
                         const style = clonedDoc.createElement('style');
                         style.innerHTML = `* { font-family: 'Prompt', sans-serif !important; }`;
@@ -322,6 +478,7 @@
 
                         const originalBlocks = document.querySelectorAll('#ccdc-grid-container .ranking-block');
                         const clonedBlocks = clonedDoc.querySelectorAll('#ccdc-grid-container .ranking-block');
+                        
                         clonedBlocks.forEach((clonedBlock, idx) => {
                             if(originalBlocks[idx]) {
                                 const w = originalBlocks[idx].offsetWidth;
@@ -335,44 +492,13 @@
                                 if (dName === "เมืองเชียงใหม่" || dName === "กัลยาณิวัฒนา") nameRatio = 0.12;
                                 else if (dName.length > 7) nameRatio = 0.145;
 
-                                // --- Fix: บังคับตำแหน่ง Rank และ Name ให้เป๊ะบน iOS โดยใช้ Absolute Positioning ---
-                                if (txtRank) { 
-                                    txtRank.style.position = 'absolute';
-                                    txtRank.style.top = (w * 0.05) + 'px';
-                                    txtRank.style.left = '0';
-                                    txtRank.style.width = '100%';
-                                    txtRank.style.textAlign = 'center';
-                                    txtRank.style.fontSize = (w * 0.11) + 'px'; 
-                                    txtRank.style.margin = '0';
-                                    txtRank.style.transform = 'none'; 
-                                }
-                                
-                                if (txtName) { 
-                                    txtName.style.position = 'absolute';
-                                    txtName.style.top = (w * 0.19) + 'px'; // บังคับจุดเริ่มบรรทัดชื่ออำเภอให้คงที่ทุุกช่อง
-                                    txtName.style.left = '0';
-                                    txtName.style.width = '100%';
-                                    txtName.style.textAlign = 'center';
-                                    txtName.style.fontSize = (w * nameRatio) + 'px'; 
-                                    txtName.style.lineHeight = '1'; 
-                                    txtName.style.margin = '0';
-                                    txtName.style.transform = 'none'; 
-                                    txtName.style.display = 'block';
-                                }
-                                // --------------------------------------------------------------------------
-                                
+                                if (txtRank) { txtRank.style.fontSize = (w * 0.11) + 'px'; txtRank.style.marginBottom = (w * 0.04) + 'px'; txtRank.style.transform = 'translateY(-' + (w * 0.04) + 'px)'; }
+                                if (txtName) { txtName.style.fontSize = (w * nameRatio) + 'px'; txtName.style.height = (w * 0.22) + 'px'; txtName.style.display = 'flex'; txtName.style.alignItems = 'center'; txtName.style.justifyContent = 'center'; txtName.style.transform = 'translateY(-' + (w * 0.10) + 'px)'; }
                                 if (txtPm25) { 
                                     if (txtPm25.innerText === 'ไม่มีข้อมูล') { txtPm25.style.fontSize = (w * 0.14) + 'px'; txtPm25.style.transform = 'translateY(-' + (w * 0.12) + 'px)'; } 
-                                    else { 
-                                        txtPm25.style.fontSize = (w * 0.42) + 'px'; 
-                                        txtPm25.style.marginBottom = '0px'; 
-                                        txtPm25.style.transform = 'translateY(-' + (w * 0.24) + 'px)'; 
-                                    }
+                                    else { txtPm25.style.fontSize = (w * 0.42) + 'px'; txtPm25.style.marginBottom = '0px'; txtPm25.style.transform = 'translateY(-' + (w * 0.16) + 'px)'; }
                                 }
-                                if (txtUnit) { 
-                                    txtUnit.style.fontSize = (w * 0.10) + 'px'; 
-                                    txtUnit.style.transform = 'translateY(-' + (w * 0.14) + 'px)'; 
-                                }
+                                if (txtUnit) { txtUnit.style.fontSize = (w * 0.10) + 'px'; txtUnit.style.transform = 'translateY(-' + (w * 0.12) + 'px)'; }
                             }
                         });
                     }
@@ -388,19 +514,22 @@
                 const canvas = await captureGridToCanvas(2);
                 const link = document.createElement("a");
                 link.href = canvas.toDataURL("image/png");
-                link.download = `PM25_GridRanking_${Date.now()}.png`;
+                link.download = `PM25_CCDC_GridRanking_${Date.now()}.png`;
                 link.click();
-            } catch (err) { alert("เกิดข้อผิดพลาด: " + err); }
+            } catch (err) {
+                alert("เกิดข้อผิดพลาด: " + err);
+            }
         }
 
-        // --- บันทึกรูปพร้อมกรอบ Template ---
         async function saveImageWithTemplate(btnElement) {
             if(!currentData) { alert("กรุณารอโหลดข้อมูลให้เสร็จก่อน"); return; }
             
-            const btn = btnElement;
-            const originalText = btn.innerHTML;
-            btn.innerHTML = `<span class="loading-spinner" style="border-top-color: white;"></span><span class="ml-2">กำลังบันทึก...</span>`;
-            btn.disabled = true;
+            const btn = btnElement || document.querySelector('button[onclick="saveImageWithTemplate(this)"]');
+            const originalText = btn ? btn.innerHTML : "บันทึกรูป";
+            if (btn) {
+                btn.innerHTML = `<span class="loading-spinner" style="border-top-color: white;"></span><span class="ml-2">กำลังประมวลผล...</span>`;
+                btn.disabled = true;
+            }
 
             const defaultTemplateUrl = "https://img2.pic.in.th/-c54d2bbd8578abf4.jpg";
 
@@ -412,80 +541,112 @@
 
                 let bgImgSrc = "";
                 const uploadedImg = document.getElementById('template-preview-img');
+                
                 if (uploadedImg && uploadedImg.src && uploadedImg.src.startsWith("data:")) {
                     bgImgSrc = uploadedImg.src;
                 } else {
                     const proxies = [
                         `https://wsrv.nl/?url=${encodeURIComponent(defaultTemplateUrl)}&output=jpg`,
-                        `https://api.allorigins.win/raw?url=${encodeURIComponent(defaultTemplateUrl)}`
+                        `https://api.allorigins.win/raw?url=${encodeURIComponent(defaultTemplateUrl)}`,
+                        `https://corsproxy.io/?${encodeURIComponent(defaultTemplateUrl)}`
                     ];
+                    let fetchSuccess = false;
                     for (let proxy of proxies) {
                         try {
                             const res = await fetch(proxy);
                             if (res.ok) {
                                 const blob = await res.blob();
-                                bgImgSrc = await new Promise((res) => {
-                                    const r = new FileReader(); r.onloadend = () => res(r.result); r.readAsDataURL(blob);
+                                bgImgSrc = await new Promise((res, rej) => {
+                                    const reader = new FileReader();
+                                    reader.onloadend = () => res(reader.result);
+                                    reader.onerror = rej;
+                                    reader.readAsDataURL(blob); 
                                 });
+                                fetchSuccess = true;
                                 break;
                             }
                         } catch(e) {}
                     }
-                    if (!bgImgSrc) bgImgSrc = defaultTemplateUrl;
+                    if (!fetchSuccess) bgImgSrc = defaultTemplateUrl + "?nocache=" + Date.now();
                 }
 
                 const bgImg = new Image();
                 bgImg.crossOrigin = "anonymous";
                 await new Promise((resolve, reject) => {
                     bgImg.onload = resolve;
-                    bgImg.onerror = () => reject(new Error("โหลดกรอบรูปไม่ได้"));
+                    bgImg.onerror = () => reject(new Error("โหลดกรอบรูปไม่ได้ กรุณาอัปโหลดรูปด้วยตนเองในข้อ 1 ครับ"));
                     bgImg.src = bgImgSrc;
                 });
 
+                // ==============================================================
+                // กู้คืนระบบพิมพ์วันที่ ฟอนต์ Prompt 100% จากไฟล์ต้นฉบับดั้งเดิม
+                // ==============================================================
+                await document.fonts.load('600 27px "Prompt"');
+                await document.fonts.ready;
+
+                const dateDiv = document.createElement('div');
+                dateDiv.style.position = 'fixed';
+                dateDiv.style.top = '-9999px';
+                dateDiv.style.left = '0px';
+                dateDiv.style.width = '1080px';
+                dateDiv.style.textAlign = 'center';
+                dateDiv.style.color = '#ffffff';
+                dateDiv.style.fontFamily = "'Prompt', sans-serif";
+                dateDiv.style.fontWeight = '600';
+                dateDiv.style.fontSize = '27px';
+                dateDiv.style.lineHeight = '1.5'; 
+                dateDiv.style.paddingTop = '10px';
+                dateDiv.style.paddingBottom = '10px';
+                dateDiv.style.textShadow = '1px 1px 4px rgba(0,0,0,0.4)';
+                dateDiv.innerText = shortUpdateTimeStr;
+                document.body.appendChild(dateDiv);
+
+                await new Promise(r => setTimeout(r, 100)); // รอเรนเดอร์เล็กน้อย
+
+                const dateCanvas = await html2canvas(dateDiv, { backgroundColor: null, scale: 2, logging: false });
+                document.body.removeChild(dateDiv);
+
+                // ประกอบร่าง
                 const finalCanvas = document.createElement('canvas');
-                const scale = 2; 
-                finalCanvas.width = 1080 * scale;
-                finalCanvas.height = 1350 * scale;
+                finalCanvas.width = 1080;
+                finalCanvas.height = 1350;
                 const ctx = finalCanvas.getContext('2d');
                 ctx.imageSmoothingEnabled = true;
                 ctx.imageSmoothingQuality = 'high';
 
                 ctx.drawImage(bgImg, 0, 0, finalCanvas.width, finalCanvas.height);
 
-                const startY = 225 * scale;       
-                const targetHeight = 840 * scale; 
+                // ตารางปกติ
+                const startY = 225;       
+                const targetHeight = 840; 
                 const drawWidth = (gridImg.width / gridImg.height) * targetHeight; 
                 const drawHeight = targetHeight;
                 const startX = (finalCanvas.width - drawWidth) / 2;
                 ctx.drawImage(gridImg, startX, startY, drawWidth, drawHeight);
 
-                const targetYPosition = 144 * scale; 
-                
-                await document.fonts.load('600 54px "Prompt"'); 
-                
-                ctx.font = '600 54px "Prompt"'; 
-                ctx.fillStyle = '#ffffff';
-                ctx.textAlign = 'center';
-                ctx.textBaseline = 'middle';
-                
-                ctx.shadowColor = 'rgba(0,0,0,0.4)';
-                ctx.shadowBlur = 8;
-                ctx.shadowOffsetX = 2;
-                ctx.shadowOffsetY = 2;
-
-                ctx.fillText(shortUpdateTimeStr, finalCanvas.width / 2, targetYPosition);
+                // ข้อความวันที่ (ใช้หลักการและพิกัด Y = 137 ตามต้นฉบับ 100%)
+                const targetYPosition = 137;
+                const dateDrawWidth = 1080;
+                const dateDrawHeight = dateCanvas.height / 2;
+                const dateTargetY = targetYPosition - (dateDrawHeight / 2);
+                ctx.drawImage(dateCanvas, 0, dateTargetY, dateDrawWidth, dateDrawHeight);
 
                 const link = document.createElement("a");
-                link.href = finalCanvas.toDataURL("image/jpeg", 0.95); 
+                link.href = finalCanvas.toDataURL("image/jpeg", 1.0); 
                 let fileDate = shortUpdateTimeStr.replace(/[\s\.]/g, '_').replace(/:/g, '');
                 link.download = `PM25_Report_${fileDate}.jpg`;
                 link.click();
 
+                if (bgImgSrc.startsWith('blob:') || bgImgSrc.startsWith('data:')) URL.revokeObjectURL(bgImgSrc);
+
             } catch (err) {
-                alert("เกิดข้อผิดพลาดในการบันทึกรูป: " + err.message);
+                console.error("Save Error:", err);
+                alert(err.message);
             } finally {
-                btn.innerHTML = originalText;
-                btn.disabled = false;
+                if (btn) {
+                    btn.innerHTML = originalText;
+                    btn.disabled = false;
+                }
             }
         }
 
@@ -493,15 +654,16 @@
             if (!currentData) return;
             let text = `ค่าฝุ่น "จ.เชียงใหม่"\n${shortUpdateTimeStr || 'ล่าสุด'}\n.\n`;
             currentData.forEach((item, index) => {
-                let dName = item.name === 'เมืองเชียงใหม่' ? 'เมือง' : item.name;
-                if (item.val === -1) text += `อันดับ ${index + 1} : อ.${dName} (ไม่มีข้อมูล)\n`;
+                let districtName = item.name === 'เมืองเชียงใหม่' ? 'เมือง' : item.name;
+                if (item.val === -1) { text += `อันดับ ${index + 1} : อ.${districtName} (ไม่มีข้อมูล)\n`; } 
                 else {
                     let locStr = item.loc.replace(/\s*(?:อ\.|อำเภอ|จ\.|จังหวัด)\s*[ก-๙]+/g, '').trim();
-                    text += `อันดับ ${index + 1} : อ.${dName} ${item.val} µg/m³\n(จุด : ${locStr})\n`;
+                    text += `อันดับ ${index + 1} : อ.${districtName} ${item.val} µg/m³\n(จุด : ${locStr})\n`;
                 }
             });
             text += `.\nข้อมูลอ้างอิง : CMU CCDC (ค่าตามจุดตรวจวัดที่สูงที่สุดของอำเภอนั้น)`;
-            document.getElementById('legacyReportText').innerText = text;
+            
+            document.querySelectorAll('#legacyReportText').forEach(el => el.innerText = text);
         }
 
         function copyLegacyReportText() {
@@ -513,10 +675,11 @@
             document.execCommand('copy');
             document.body.removeChild(textarea);
 
-            const statusEl = document.getElementById('copyLegacyStatus');
-            const oldText = statusEl.innerText;
-            statusEl.innerText = 'คัดลอกสำเร็จแล้ว!';
-            setTimeout(() => { statusEl.innerText = oldText; }, 2000);
+            updateUIElements('#copyLegacyStatus', el => {
+                const oldText = el.innerText;
+                el.innerText = 'คัดลอกสำเร็จ!';
+                setTimeout(() => { el.innerText = oldText; }, 2000);
+            });
         }
 
         function parseThaiDate(rawDateStr) {
@@ -533,7 +696,9 @@
                 let timeMatch = rawDateStr.match(/([0-2]?\d):([0-5]\d)/);
                 if(timeMatch) { hrs = parseInt(timeMatch[1]); mins = parseInt(timeMatch[2]); }
                 for (let i = 0; i < 12; i++) {
-                    if (rawDateStr.includes(thaiMonths[i]) || rawDateStr.includes(thaiMonthsShort[i])) { month = i; foundMonth = true; break; }
+                    if (rawDateStr.includes(thaiMonths[i]) || rawDateStr.includes(thaiMonthsShort[i])) {
+                        month = i; foundMonth = true; break;
+                    }
                 }
                 if (foundMonth) d = new Date(year, month, day, hrs, mins);
             }
@@ -544,13 +709,14 @@
             if (!d) return raw;
             const days = ["วันอาทิตย์", "วันจันทร์", "วันอังคาร", "วันพุธ", "วันพฤหัสบดี", "วันศุกร์", "วันเสาร์"];
             const months = ["มกราคม", "กุมภาพันธ์", "มีนาคม", "เมษายน", "พฤษภาคม", "มิถุนายน", "กรกฎาคม", "สิงหาคม", "กันยายน", "ตุลาคม", "พฤศจิกายน", "ธันวาคม"];
-            return `${days[d.getDay()]}ที่ ${d.getDate()} ${months[d.getMonth()]} ${d.getFullYear() + 543} เวลา ${String(d.getHours()).padStart(2, '0')}:${String(d.getMinutes()).padStart(2, '0')} น.`;
+            return `${days[d.getDay()]}ที่ ${d.getDate()} ${months[d.getMonth()]} ${d.getFullYear() + 543} เวลา ${String(d.getHours()).padStart(2, '0')}:${String(d.getHours() === 0 ? '00' : String(d.getMinutes()).padStart(2, '0'))} น.`;
         }
 
         function getShortThaiDateString(d, raw) {
             if (!d) return raw; 
             const monthsShort = ["ม.ค.", "ก.พ.", "มี.ค.", "เม.ย.", "พ.ค.", "มิ.ย.", "ก.ค.", "ส.ค.", "ก.ย.", "ต.ค.", "พ.ย.", "ธ.ค."];
-            return `${d.getDate()} ${monthsShort[d.getMonth()]} ${String(d.getFullYear() + 543).slice(-2)} เวลา ${String(d.getHours()).padStart(2, '0')}.${String(d.getMinutes()).padStart(2, '0')} น.`;
+            let year2Digits = String(d.getFullYear() + 543).slice(-2);
+            return `${d.getDate()} ${monthsShort[d.getMonth()]} ${year2Digits} เวลา ${String(d.getHours()).padStart(2, '0')}.${String(d.getMinutes()).padStart(2, '0')} น.`;
         }
 
         function getAqiColorForBlock(val) {
